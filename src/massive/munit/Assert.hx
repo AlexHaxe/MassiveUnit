@@ -161,8 +161,109 @@ class Assert
 			
 			default: expected == actual;
 		}		
-		if (!equal) failPrefix(msg, "Value [" + actual +"] was not equal to expected value [" + expected + "]", info);
+		if (!equal) failPrefix(msg, stringDiff (expected, actual), info);
+//		if (!equal) failPrefix(msg, "Value [" + actual +"] was not equal to expected value [" + expected + "]", info);
 	}
+
+    public static function stringDiff (expected : String, actual : String) : String
+    {
+        var indexExpected : Int = 0;
+        var indexActual : Int = 0;
+
+        var diffExpected : StringBuf = new StringBuf ();
+        var diffActual : StringBuf = new StringBuf ();
+
+        var inDifference : Bool = false;
+        var totalLength : Int = Std.int (Math.max (expected.length, actual.length));
+        var expectedChar : String;
+        var actualChar : String;
+        for (index in 0...totalLength)
+        {
+            expectedChar = null;
+            actualChar = null;
+            if (indexExpected < expected.length)
+            {
+                expectedChar = expected.charAt (indexExpected);
+            }
+            if (indexActual < actual.length)
+            {
+                actualChar = actual.charAt (indexActual);
+            }
+            if (expectedChar == actualChar)
+            {
+                if (inDifference)
+                {
+                    inDifference = false;
+                    diffExpected.add ("]");
+                    diffActual.add ("]");
+                }
+                diffExpected.add (expectedChar);
+                diffActual.add (actualChar);
+                indexExpected++;
+                indexActual++;
+                continue;
+            }
+            var posExpected : Int = expected.indexOf (actualChar, index);
+            var posActual : Int = actual.indexOf (expectedChar, index);
+            if (!inDifference)
+            {
+                inDifference = true;
+                diffExpected.add ("[");
+                diffActual.add ("[");
+            }
+            if (posExpected < 0)
+            {
+                if (posActual < 0)
+                {
+                    diffExpected.add (expectedChar);
+                    diffActual.add (actualChar);
+                    indexExpected++;
+                    indexActual++;
+                }
+                else
+                {
+                    diffActual.add (actualChar);
+                    indexActual++;
+                }
+            }
+            else
+            {
+                if (posActual < 0)
+                {
+                    diffExpected.add (expectedChar);
+                    indexExpected++;
+                }
+                else
+                {
+                    if (posExpected < posActual)
+                    {
+                        diffExpected.add (expectedChar);
+                        indexExpected++;
+                    }
+                    else
+                    {
+                        diffActual.add (actualChar);
+                        indexActual++;
+                    }
+                }
+            }
+        }
+        if (indexExpected < expected.length)
+        {
+            diffExpected.add (expected.substr (indexExpected));
+        }
+        if (indexActual < actual.length)
+        {
+            diffActual.add (actual.substr (indexActual));
+        }
+        if (inDifference)
+        {
+            inDifference = false;
+            diffExpected.add ("]");
+            diffActual.add ("]");
+        }
+        return 'expected: ${diffExpected.toString ()} actual: ${diffActual.toString ()}';
+    }
 	
 	/**
 	 * Assert that two values are not equal.
