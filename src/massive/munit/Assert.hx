@@ -177,10 +177,10 @@ class Assert
         var totalLength : Int = Std.int (Math.max (expected.length, actual.length));
         var expectedChar : String;
         var actualChar : String;
-        for (index in 0...totalLength)
+        while ((indexExpected < expected.length) || (indexActual < actual.length))
         {
-            expectedChar = null;
-            actualChar = null;
+            expectedChar = "";
+            actualChar = "";
             if (indexExpected < expected.length)
             {
                 expectedChar = expected.charAt (indexExpected);
@@ -203,8 +203,8 @@ class Assert
                 indexActual++;
                 continue;
             }
-            var posExpected : Int = expected.indexOf (actualChar, index);
-            var posActual : Int = actual.indexOf (expectedChar, index);
+            var posExpected : Int = expected.indexOf (actualChar, indexExpected);
+            var posActual : Int = actual.indexOf (expectedChar, indexActual);
             if (!inDifference)
             {
                 inDifference = true;
@@ -248,21 +248,21 @@ class Assert
                 }
             }
         }
-        if (indexExpected < expected.length)
-        {
-            diffExpected.add (expected.substr (indexExpected));
-        }
-        if (indexActual < actual.length)
-        {
-            diffActual.add (actual.substr (indexActual));
-        }
+        //if (indexExpected < expected.length)
+        //{
+        //    diffExpected.add (expected.substr (indexExpected));
+        //}
+        //if (indexActual < actual.length)
+        //{
+        //    diffActual.add (actual.substr (indexActual));
+        //}
         if (inDifference)
         {
             inDifference = false;
             diffExpected.add ("]");
             diffActual.add ("]");
         }
-        return 'expected: ${diffExpected.toString ()} actual: ${diffActual.toString ()}';
+        return 'expected: "${diffExpected.toString ()}" actual: "${diffActual.toString ()}"';
     }
 	
 	/**
