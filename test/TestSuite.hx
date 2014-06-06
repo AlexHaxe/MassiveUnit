@@ -30,6 +30,7 @@ class TestSuite extends massive.munit.TestSuite
 
 		add(massive.munit.AssertionExceptionTest);
 		add(massive.munit.AssertTest);
+		add(massive.munit.AssertHelperTest);
 		add(massive.munit.async.AsyncDelegateTest);
 		add(massive.munit.async.AsyncFactoryTest);
 		add(massive.munit.async.AsyncTimeoutExceptionTest);
