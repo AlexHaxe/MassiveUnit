@@ -36,7 +36,8 @@ import massive.haxe.util.ReflectUtil;
 import massive.munit.util.Timer;
 
 #if haxe3
-class AbstractTestResultClient implements IAdvancedTestResultClient implements ICoverageTestResultClient
+//class AbstractTestResultClient implements IAdvancedTestResultClient implements ICoverageTestResultClient
+class AbstractTestResultClient implements ICoverageTestResultClient
 #else
 class AbstractTestResultClient implements IAdvancedTestResultClient, implements ICoverageTestResultClient
 #end

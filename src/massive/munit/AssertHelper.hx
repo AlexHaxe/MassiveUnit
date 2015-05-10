@@ -47,8 +47,18 @@ class AssertHelper
 				indexActual++;
 				continue;
 			}
-			var posExpected:Int = expected.indexOf(actualChar, indexExpected);
-			var posActual:Int = actual.indexOf(expectedChar, indexActual);
+            var actualSearch : String = actualChar;
+            var expectedSearch : String = expectedChar;
+			if (indexExpected + 1 < expected.length)
+			{
+				expectedSearch += expected.charAt(indexExpected + 1);
+			}
+			if (indexActual + 1 < actual.length)
+			{
+				actualSearch += actual.charAt(indexActual + 1);
+			}
+			var posExpected:Int = expected.indexOf(actualSearch, indexExpected);
+			var posActual:Int = actual.indexOf(expectedSearch, indexActual);
 			if (!inDifference)
 			{
 				inDifference = true;
