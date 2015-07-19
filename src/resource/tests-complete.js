@@ -1,90 +1,174 @@
-(function () { "use strict";
-var $estr = function() { return js.Boot.__string_rec(this,''); };
+(function (console, $hx_exports) { "use strict";
+$hx_exports.massive = $hx_exports.massive || {};
+$hx_exports.massive.munit = $hx_exports.massive.munit || {};
+$hx_exports.massive.munit.util = $hx_exports.massive.munit.util || {};
+var $estr = function() { return js_Boot.__string_rec(this,''); };
 function $extend(from, fields) {
-	function inherit() {}; inherit.prototype = from; var proto = new inherit();
+	function Inherit() {} Inherit.prototype = from; var proto = new Inherit();
 	for (var name in fields) proto[name] = fields[name];
 	if( fields.toString !== Object.prototype.toString ) proto.toString = fields.toString;
 	return proto;
 }
-var BrowserTestsCompleteReporter = function() {
+var BrowserTestsCompleteReporter = $hx_exports.BrowserTestsCompleteReporter = function() {
 };
-$hxExpose(BrowserTestsCompleteReporter, "BrowserTestsCompleteReporter");
 BrowserTestsCompleteReporter.__name__ = true;
 BrowserTestsCompleteReporter.main = function() {
-}
+};
 BrowserTestsCompleteReporter.sendReport = function(onData,onError) {
-	var httpRequest = new haxe.Http("http://localhost:2000");
+	var httpRequest = new haxe_Http("http://localhost:2000");
 	httpRequest.setHeader("munit-clientId","munit-tool-host");
 	httpRequest.setHeader("munit-platformId","-");
 	httpRequest.setParameter("data","COMPLETE");
 	httpRequest.onData = onData;
 	httpRequest.onError = onError;
 	httpRequest.request(true);
-}
+};
 BrowserTestsCompleteReporter.prototype = {
 	__class__: BrowserTestsCompleteReporter
-}
-var HxOverrides = function() { }
-HxOverrides.__name__ = true;
-HxOverrides.iter = function(a) {
-	return { cur : 0, arr : a, hasNext : function() {
-		return this.cur < this.arr.length;
-	}, next : function() {
-		return this.arr[this.cur++];
-	}};
-}
-var IMap = function() { }
-IMap.__name__ = true;
-var Std = function() { }
+};
+var EReg = function(r,opt) {
+	opt = opt.split("u").join("");
+	this.r = new RegExp(r,opt);
+};
+EReg.__name__ = true;
+EReg.prototype = {
+	match: function(s) {
+		if(this.r.global) this.r.lastIndex = 0;
+		this.r.m = this.r.exec(s);
+		this.r.s = s;
+		return this.r.m != null;
+	}
+	,__class__: EReg
+};
+var Lambda = function() { };
+Lambda.__name__ = true;
+Lambda.exists = function(it,f) {
+	var $it0 = it.iterator();
+	while( $it0.hasNext() ) {
+		var x = $it0.next();
+		if(f(x)) return true;
+	}
+	return false;
+};
+Lambda.filter = function(it,f) {
+	var l = new List();
+	var $it0 = it.iterator();
+	while( $it0.hasNext() ) {
+		var x = $it0.next();
+		if(f(x)) l.add(x);
+	}
+	return l;
+};
+var List = function() {
+	this.length = 0;
+};
+List.__name__ = true;
+List.prototype = {
+	add: function(item) {
+		var x = [item];
+		if(this.h == null) this.h = x; else this.q[1] = x;
+		this.q = x;
+		this.length++;
+	}
+	,push: function(item) {
+		var x = [item,this.h];
+		this.h = x;
+		if(this.q == null) this.q = x;
+		this.length++;
+	}
+	,iterator: function() {
+		return new _$List_ListIterator(this.h);
+	}
+	,__class__: List
+};
+var _$List_ListIterator = function(head) {
+	this.head = head;
+	this.val = null;
+};
+_$List_ListIterator.__name__ = true;
+_$List_ListIterator.prototype = {
+	hasNext: function() {
+		return this.head != null;
+	}
+	,next: function() {
+		this.val = this.head[0];
+		this.head = this.head[1];
+		return this.val;
+	}
+	,__class__: _$List_ListIterator
+};
+Math.__name__ = true;
+var Std = function() { };
 Std.__name__ = true;
 Std.string = function(s) {
-	return js.Boot.__string_rec(s,"");
-}
-var StringTools = function() { }
-StringTools.__name__ = true;
-StringTools.urlEncode = function(s) {
-	return encodeURIComponent(s);
-}
-var haxe = {}
-haxe.Http = function(url) {
+	return js_Boot.__string_rec(s,"");
+};
+var haxe_IMap = function() { };
+haxe_IMap.__name__ = true;
+var haxe_Http = function(url) {
 	this.url = url;
-	this.headers = new haxe.ds.StringMap();
-	this.params = new haxe.ds.StringMap();
+	this.headers = new List();
+	this.params = new List();
 	this.async = true;
 };
-haxe.Http.__name__ = true;
-haxe.Http.prototype = {
-	onStatus: function(status) {
+haxe_Http.__name__ = true;
+haxe_Http.prototype = {
+	setHeader: function(header,value) {
+		this.headers = Lambda.filter(this.headers,function(h) {
+			return h.header != header;
+		});
+		this.headers.push({ header : header, value : value});
+		return this;
 	}
-	,onError: function(msg) {
+	,setParameter: function(param,value) {
+		this.params = Lambda.filter(this.params,function(p) {
+			return p.param != param;
+		});
+		this.params.push({ param : param, value : value});
+		return this;
 	}
-	,onData: function(data) {
+	,setPostData: function(data) {
+		this.postData = data;
+		return this;
 	}
 	,request: function(post) {
 		var me = this;
 		me.responseData = null;
-		var r = js.Browser.createXMLHttpRequest();
+		var r = this.req = js_Browser.createXMLHttpRequest();
 		var onreadystatechange = function(_) {
 			if(r.readyState != 4) return;
-			var s = (function($this) {
-				var $r;
-				try {
-					$r = r.status;
-				} catch( e ) {
-					$r = null;
-				}
-				return $r;
-			}(this));
+			var s;
+			try {
+				s = r.status;
+			} catch( e ) {
+				if (e instanceof js__$Boot_HaxeError) e = e.val;
+				s = null;
+			}
+			if(s != null) {
+				var protocol = window.location.protocol.toLowerCase();
+				var rlocalProtocol = new EReg("^(?:about|app|app-storage|.+-extension|file|res|widget):$","");
+				var isLocal = rlocalProtocol.match(protocol);
+				if(isLocal) if(r.responseText != null) s = 200; else s = 404;
+			}
 			if(s == undefined) s = null;
 			if(s != null) me.onStatus(s);
-			if(s != null && s >= 200 && s < 400) me.onData(me.responseData = r.responseText); else if(s == null) me.onError("Failed to connect or resolve host"); else switch(s) {
+			if(s != null && s >= 200 && s < 400) {
+				me.req = null;
+				me.onData(me.responseData = r.responseText);
+			} else if(s == null) {
+				me.req = null;
+				me.onError("Failed to connect or resolve host");
+			} else switch(s) {
 			case 12029:
+				me.req = null;
 				me.onError("Failed to connect to host");
 				break;
 			case 12007:
+				me.req = null;
 				me.onError("Unknown host");
 				break;
 			default:
+				me.req = null;
 				me.responseData = r.responseText;
 				me.onError("Http Error #" + r.status);
 			}
@@ -92,11 +176,19 @@ haxe.Http.prototype = {
 		if(this.async) r.onreadystatechange = onreadystatechange;
 		var uri = this.postData;
 		if(uri != null) post = true; else {
-			var $it0 = this.params.keys();
-			while( $it0.hasNext() ) {
-				var p = $it0.next();
+			var _g_head = this.params.h;
+			var _g_val = null;
+			while(_g_head != null) {
+				var p;
+				p = (function($this) {
+					var $r;
+					_g_val = _g_head[0];
+					_g_head = _g_head[1];
+					$r = _g_val;
+					return $r;
+				}(this));
 				if(uri == null) uri = ""; else uri += "&";
-				uri += StringTools.urlEncode(p) + "=" + StringTools.urlEncode(this.params.get(p));
+				uri += encodeURIComponent(p.param) + "=" + encodeURIComponent(p.value);
 			}
 		}
 		try {
@@ -105,59 +197,65 @@ haxe.Http.prototype = {
 				r.open("GET",this.url + (question?"?":"&") + uri,this.async);
 				uri = null;
 			} else r.open("GET",this.url,this.async);
-		} catch( e ) {
-			this.onError(e.toString());
+		} catch( e1 ) {
+			if (e1 instanceof js__$Boot_HaxeError) e1 = e1.val;
+			me.req = null;
+			this.onError(e1.toString());
 			return;
 		}
-		if(this.headers.get("Content-Type") == null && post && this.postData == null) r.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
-		var $it1 = this.headers.keys();
-		while( $it1.hasNext() ) {
-			var h = $it1.next();
-			r.setRequestHeader(h,this.headers.get(h));
+		if(!Lambda.exists(this.headers,function(h) {
+			return h.header == "Content-Type";
+		}) && post && this.postData == null) r.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+		var _g_head1 = this.headers.h;
+		var _g_val1 = null;
+		while(_g_head1 != null) {
+			var h1;
+			h1 = (function($this) {
+				var $r;
+				_g_val1 = _g_head1[0];
+				_g_head1 = _g_head1[1];
+				$r = _g_val1;
+				return $r;
+			}(this));
+			r.setRequestHeader(h1.header,h1.value);
 		}
 		r.send(uri);
 		if(!this.async) onreadystatechange(null);
 	}
-	,setPostData: function(data) {
-		this.postData = data;
-		return this;
+	,onData: function(data) {
 	}
-	,setParameter: function(param,value) {
-		this.params.set(param,value);
-		return this;
+	,onError: function(msg) {
 	}
-	,setHeader: function(header,value) {
-		this.headers.set(header,value);
-		return this;
+	,onStatus: function(status) {
 	}
-	,__class__: haxe.Http
-}
-haxe.ds = {}
-haxe.ds.StringMap = function() {
-	this.h = { };
+	,__class__: haxe_Http
 };
-haxe.ds.StringMap.__name__ = true;
-haxe.ds.StringMap.__interfaces__ = [IMap];
-haxe.ds.StringMap.prototype = {
-	keys: function() {
-		var a = [];
-		for( var key in this.h ) {
-		if(this.h.hasOwnProperty(key)) a.push(key.substr(1));
-		}
-		return HxOverrides.iter(a);
+var haxe_ds_StringMap = function() { };
+haxe_ds_StringMap.__name__ = true;
+haxe_ds_StringMap.__interfaces__ = [haxe_IMap];
+var js__$Boot_HaxeError = function(val) {
+	Error.call(this);
+	this.val = val;
+	this.message = String(val);
+	if(Error.captureStackTrace) Error.captureStackTrace(this,js__$Boot_HaxeError);
+};
+js__$Boot_HaxeError.__name__ = true;
+js__$Boot_HaxeError.__super__ = Error;
+js__$Boot_HaxeError.prototype = $extend(Error.prototype,{
+	__class__: js__$Boot_HaxeError
+});
+var js_Boot = function() { };
+js_Boot.__name__ = true;
+js_Boot.getClass = function(o) {
+	if((o instanceof Array) && o.__enum__ == null) return Array; else {
+		var cl = o.__class__;
+		if(cl != null) return cl;
+		var name = js_Boot.__nativeClassName(o);
+		if(name != null) return js_Boot.__resolveNativeClass(name);
+		return null;
 	}
-	,get: function(key) {
-		return this.h["$" + key];
-	}
-	,set: function(key,value) {
-		this.h["$" + key] = value;
-	}
-	,__class__: haxe.ds.StringMap
-}
-var js = {}
-js.Boot = function() { }
-js.Boot.__name__ = true;
-js.Boot.__string_rec = function(o,s) {
+};
+js_Boot.__string_rec = function(o,s) {
 	if(o == null) return "null";
 	if(s.length >= 5) return "<...>";
 	var t = typeof(o);
@@ -167,34 +265,36 @@ js.Boot.__string_rec = function(o,s) {
 		if(o instanceof Array) {
 			if(o.__enum__) {
 				if(o.length == 2) return o[0];
-				var str = o[0] + "(";
+				var str2 = o[0] + "(";
 				s += "\t";
-				var _g1 = 2, _g = o.length;
+				var _g1 = 2;
+				var _g = o.length;
 				while(_g1 < _g) {
-					var i = _g1++;
-					if(i != 2) str += "," + js.Boot.__string_rec(o[i],s); else str += js.Boot.__string_rec(o[i],s);
+					var i1 = _g1++;
+					if(i1 != 2) str2 += "," + js_Boot.__string_rec(o[i1],s); else str2 += js_Boot.__string_rec(o[i1],s);
 				}
-				return str + ")";
+				return str2 + ")";
 			}
 			var l = o.length;
 			var i;
-			var str = "[";
+			var str1 = "[";
 			s += "\t";
-			var _g = 0;
-			while(_g < l) {
-				var i1 = _g++;
-				str += (i1 > 0?",":"") + js.Boot.__string_rec(o[i1],s);
+			var _g2 = 0;
+			while(_g2 < l) {
+				var i2 = _g2++;
+				str1 += (i2 > 0?",":"") + js_Boot.__string_rec(o[i2],s);
 			}
-			str += "]";
-			return str;
+			str1 += "]";
+			return str1;
 		}
 		var tostr;
 		try {
 			tostr = o.toString;
 		} catch( e ) {
+			if (e instanceof js__$Boot_HaxeError) e = e.val;
 			return "???";
 		}
-		if(tostr != null && tostr != Object.toString) {
+		if(tostr != null && tostr != Object.toString && typeof(tostr) == "function") {
 			var s2 = o.toString();
 			if(s2 != "[object Object]") return s2;
 		}
@@ -202,7 +302,7 @@ js.Boot.__string_rec = function(o,s) {
 		var str = "{\n";
 		s += "\t";
 		var hasp = o.hasOwnProperty != null;
-		for( var k in o ) { ;
+		for( var k in o ) {
 		if(hasp && !o.hasOwnProperty(k)) {
 			continue;
 		}
@@ -210,7 +310,7 @@ js.Boot.__string_rec = function(o,s) {
 			continue;
 		}
 		if(str.length != 2) str += ", \n";
-		str += s + k + " : " + js.Boot.__string_rec(o[k],s);
+		str += s + k + " : " + js_Boot.__string_rec(o[k],s);
 		}
 		s = s.substring(1);
 		str += "\n" + s + "}";
@@ -222,22 +322,23 @@ js.Boot.__string_rec = function(o,s) {
 	default:
 		return String(o);
 	}
-}
-js.Boot.__interfLoop = function(cc,cl) {
+};
+js_Boot.__interfLoop = function(cc,cl) {
 	if(cc == null) return false;
 	if(cc == cl) return true;
 	var intf = cc.__interfaces__;
 	if(intf != null) {
-		var _g1 = 0, _g = intf.length;
+		var _g1 = 0;
+		var _g = intf.length;
 		while(_g1 < _g) {
 			var i = _g1++;
 			var i1 = intf[i];
-			if(i1 == cl || js.Boot.__interfLoop(i1,cl)) return true;
+			if(i1 == cl || js_Boot.__interfLoop(i1,cl)) return true;
 		}
 	}
-	return js.Boot.__interfLoop(cc.__super__,cl);
-}
-js.Boot.__instanceof = function(o,cl) {
+	return js_Boot.__interfLoop(cc.__super__,cl);
+};
+js_Boot.__instanceof = function(o,cl) {
 	if(cl == null) return false;
 	switch(cl) {
 	case Int:
@@ -248,92 +349,100 @@ js.Boot.__instanceof = function(o,cl) {
 		return typeof(o) == "boolean";
 	case String:
 		return typeof(o) == "string";
+	case Array:
+		return (o instanceof Array) && o.__enum__ == null;
 	case Dynamic:
 		return true;
 	default:
 		if(o != null) {
 			if(typeof(cl) == "function") {
-				if(o instanceof cl) {
-					if(cl == Array) return o.__enum__ == null;
-					return true;
-				}
-				if(js.Boot.__interfLoop(o.__class__,cl)) return true;
+				if(o instanceof cl) return true;
+				if(js_Boot.__interfLoop(js_Boot.getClass(o),cl)) return true;
+			} else if(typeof(cl) == "object" && js_Boot.__isNativeObj(cl)) {
+				if(o instanceof cl) return true;
 			}
 		} else return false;
 		if(cl == Class && o.__name__ != null) return true;
 		if(cl == Enum && o.__ename__ != null) return true;
 		return o.__enum__ == cl;
 	}
-}
-js.Boot.__cast = function(o,t) {
-	if(js.Boot.__instanceof(o,t)) return o; else throw "Cannot cast " + Std.string(o) + " to " + Std.string(t);
-}
-js.Browser = function() { }
-js.Browser.__name__ = true;
-js.Browser.createXMLHttpRequest = function() {
+};
+js_Boot.__cast = function(o,t) {
+	if(js_Boot.__instanceof(o,t)) return o; else throw new js__$Boot_HaxeError("Cannot cast " + Std.string(o) + " to " + Std.string(t));
+};
+js_Boot.__nativeClassName = function(o) {
+	var name = js_Boot.__toStr.call(o).slice(8,-1);
+	if(name == "Object" || name == "Function" || name == "Math" || name == "JSON") return null;
+	return name;
+};
+js_Boot.__isNativeObj = function(o) {
+	return js_Boot.__nativeClassName(o) != null;
+};
+js_Boot.__resolveNativeClass = function(name) {
+	return (Function("return typeof " + name + " != \"undefined\" ? " + name + " : null"))();
+};
+var js_Browser = function() { };
+js_Browser.__name__ = true;
+js_Browser.createXMLHttpRequest = function() {
 	if(typeof XMLHttpRequest != "undefined") return new XMLHttpRequest();
 	if(typeof ActiveXObject != "undefined") return new ActiveXObject("Microsoft.XMLHTTP");
-	throw "Unable to create XMLHttpRequest object.";
-}
-var massive = {}
-massive.haxe = {}
-massive.haxe.Exception = function(message,info) {
+	throw new js__$Boot_HaxeError("Unable to create XMLHttpRequest object.");
+};
+var massive_haxe_Exception = function(message,info) {
 	this.message = message;
 	this.info = info;
-	this.type = massive.haxe.util.ReflectUtil.here({ fileName : "Exception.hx", lineNumber : 70, className : "massive.haxe.Exception", methodName : "new"}).className;
+	this.type = massive_haxe_util_ReflectUtil.here({ fileName : "Exception.hx", lineNumber : 70, className : "massive.haxe.Exception", methodName : "new"}).className;
 };
-massive.haxe.Exception.__name__ = true;
-massive.haxe.Exception.prototype = {
+massive_haxe_Exception.__name__ = true;
+massive_haxe_Exception.prototype = {
 	toString: function() {
 		var str = this.type + ": " + this.message;
 		if(this.info != null) str += " at " + this.info.className + "#" + this.info.methodName + " (" + this.info.lineNumber + ")";
 		return str;
 	}
-	,__class__: massive.haxe.Exception
-}
-massive.haxe.util = {}
-massive.haxe.util.ReflectUtil = function() { }
-massive.haxe.util.ReflectUtil.__name__ = true;
-massive.haxe.util.ReflectUtil.here = function(info) {
+	,__class__: massive_haxe_Exception
+};
+var massive_haxe_util_ReflectUtil = function() { };
+massive_haxe_util_ReflectUtil.__name__ = true;
+massive_haxe_util_ReflectUtil.here = function(info) {
 	return info;
-}
-massive.munit = {}
-massive.munit.MUnitException = function(message,info) {
-	massive.haxe.Exception.call(this,message,info);
-	this.type = massive.haxe.util.ReflectUtil.here({ fileName : "MUnitException.hx", lineNumber : 50, className : "massive.munit.MUnitException", methodName : "new"}).className;
 };
-massive.munit.MUnitException.__name__ = true;
-massive.munit.MUnitException.__super__ = massive.haxe.Exception;
-massive.munit.MUnitException.prototype = $extend(massive.haxe.Exception.prototype,{
-	__class__: massive.munit.MUnitException
-});
-massive.munit.AssertionException = function(msg,info) {
-	massive.munit.MUnitException.call(this,msg,info);
-	this.type = massive.haxe.util.ReflectUtil.here({ fileName : "AssertionException.hx", lineNumber : 49, className : "massive.munit.AssertionException", methodName : "new"}).className;
+var massive_munit_MUnitException = function(message,info) {
+	massive_haxe_Exception.call(this,message,info);
+	this.type = massive_haxe_util_ReflectUtil.here({ fileName : "MUnitException.hx", lineNumber : 50, className : "massive.munit.MUnitException", methodName : "new"}).className;
 };
-massive.munit.AssertionException.__name__ = true;
-massive.munit.AssertionException.__super__ = massive.munit.MUnitException;
-massive.munit.AssertionException.prototype = $extend(massive.munit.MUnitException.prototype,{
-	__class__: massive.munit.AssertionException
+massive_munit_MUnitException.__name__ = true;
+massive_munit_MUnitException.__super__ = massive_haxe_Exception;
+massive_munit_MUnitException.prototype = $extend(massive_haxe_Exception.prototype,{
+	__class__: massive_munit_MUnitException
 });
-massive.munit.ITestResultClient = function() { }
-massive.munit.ITestResultClient.__name__ = true;
-massive.munit.ITestResultClient.prototype = {
-	__class__: massive.munit.ITestResultClient
-}
-massive.munit.IAdvancedTestResultClient = function() { }
-massive.munit.IAdvancedTestResultClient.__name__ = true;
-massive.munit.IAdvancedTestResultClient.__interfaces__ = [massive.munit.ITestResultClient];
-massive.munit.IAdvancedTestResultClient.prototype = {
-	__class__: massive.munit.IAdvancedTestResultClient
-}
-massive.munit.ICoverageTestResultClient = function() { }
-massive.munit.ICoverageTestResultClient.__name__ = true;
-massive.munit.ICoverageTestResultClient.__interfaces__ = [massive.munit.IAdvancedTestResultClient];
-massive.munit.ICoverageTestResultClient.prototype = {
-	__class__: massive.munit.ICoverageTestResultClient
-}
-massive.munit.TestResult = function() {
+var massive_munit_AssertionException = function(msg,info) {
+	massive_munit_MUnitException.call(this,msg,info);
+	this.type = massive_haxe_util_ReflectUtil.here({ fileName : "AssertionException.hx", lineNumber : 49, className : "massive.munit.AssertionException", methodName : "new"}).className;
+};
+massive_munit_AssertionException.__name__ = true;
+massive_munit_AssertionException.__super__ = massive_munit_MUnitException;
+massive_munit_AssertionException.prototype = $extend(massive_munit_MUnitException.prototype,{
+	__class__: massive_munit_AssertionException
+});
+var massive_munit_ITestResultClient = function() { };
+massive_munit_ITestResultClient.__name__ = true;
+massive_munit_ITestResultClient.prototype = {
+	__class__: massive_munit_ITestResultClient
+};
+var massive_munit_IAdvancedTestResultClient = function() { };
+massive_munit_IAdvancedTestResultClient.__name__ = true;
+massive_munit_IAdvancedTestResultClient.__interfaces__ = [massive_munit_ITestResultClient];
+massive_munit_IAdvancedTestResultClient.prototype = {
+	__class__: massive_munit_IAdvancedTestResultClient
+};
+var massive_munit_ICoverageTestResultClient = function() { };
+massive_munit_ICoverageTestResultClient.__name__ = true;
+massive_munit_ICoverageTestResultClient.__interfaces__ = [massive_munit_IAdvancedTestResultClient];
+massive_munit_ICoverageTestResultClient.prototype = {
+	__class__: massive_munit_ICoverageTestResultClient
+};
+var massive_munit_TestResult = function() {
 	this.passed = false;
 	this.executionTime = 0.0;
 	this.name = "";
@@ -344,38 +453,37 @@ massive.munit.TestResult = function() {
 	this.error = null;
 	this.failure = null;
 };
-massive.munit.TestResult.__name__ = true;
-massive.munit.TestResult.prototype = {
-	get_type: function() {
-		if(this.error != null) return massive.munit.TestResultType.ERROR;
-		if(this.failure != null) return massive.munit.TestResultType.FAIL;
-		if(this.ignore == true) return massive.munit.TestResultType.IGNORE;
-		if(this.passed == true) return massive.munit.TestResultType.PASS;
-		return massive.munit.TestResultType.UNKNOWN;
+massive_munit_TestResult.__name__ = true;
+massive_munit_TestResult.prototype = {
+	get_location: function() {
+		if(this.name == "" && this.className == "") return ""; else return this.className + "#" + this.name;
 	}
-	,get_location: function() {
-		return this.name == "" && this.className == ""?"":this.className + "#" + this.name;
+	,get_type: function() {
+		if(this.error != null) return massive_munit_TestResultType.ERROR;
+		if(this.failure != null) return massive_munit_TestResultType.FAIL;
+		if(this.ignore == true) return massive_munit_TestResultType.IGNORE;
+		if(this.passed == true) return massive_munit_TestResultType.PASS;
+		return massive_munit_TestResultType.UNKNOWN;
 	}
-	,__class__: massive.munit.TestResult
-}
-massive.munit.TestResultType = { __ename__ : true, __constructs__ : ["UNKNOWN","PASS","FAIL","ERROR","IGNORE"] }
-massive.munit.TestResultType.UNKNOWN = ["UNKNOWN",0];
-massive.munit.TestResultType.UNKNOWN.toString = $estr;
-massive.munit.TestResultType.UNKNOWN.__enum__ = massive.munit.TestResultType;
-massive.munit.TestResultType.PASS = ["PASS",1];
-massive.munit.TestResultType.PASS.toString = $estr;
-massive.munit.TestResultType.PASS.__enum__ = massive.munit.TestResultType;
-massive.munit.TestResultType.FAIL = ["FAIL",2];
-massive.munit.TestResultType.FAIL.toString = $estr;
-massive.munit.TestResultType.FAIL.__enum__ = massive.munit.TestResultType;
-massive.munit.TestResultType.ERROR = ["ERROR",3];
-massive.munit.TestResultType.ERROR.toString = $estr;
-massive.munit.TestResultType.ERROR.__enum__ = massive.munit.TestResultType;
-massive.munit.TestResultType.IGNORE = ["IGNORE",4];
-massive.munit.TestResultType.IGNORE.toString = $estr;
-massive.munit.TestResultType.IGNORE.__enum__ = massive.munit.TestResultType;
-massive.munit.client = {}
-massive.munit.client.HTTPClient = function(client,url,queueRequest) {
+	,__class__: massive_munit_TestResult
+};
+var massive_munit_TestResultType = { __ename__ : true, __constructs__ : ["UNKNOWN","PASS","FAIL","ERROR","IGNORE"] };
+massive_munit_TestResultType.UNKNOWN = ["UNKNOWN",0];
+massive_munit_TestResultType.UNKNOWN.toString = $estr;
+massive_munit_TestResultType.UNKNOWN.__enum__ = massive_munit_TestResultType;
+massive_munit_TestResultType.PASS = ["PASS",1];
+massive_munit_TestResultType.PASS.toString = $estr;
+massive_munit_TestResultType.PASS.__enum__ = massive_munit_TestResultType;
+massive_munit_TestResultType.FAIL = ["FAIL",2];
+massive_munit_TestResultType.FAIL.toString = $estr;
+massive_munit_TestResultType.FAIL.__enum__ = massive_munit_TestResultType;
+massive_munit_TestResultType.ERROR = ["ERROR",3];
+massive_munit_TestResultType.ERROR.toString = $estr;
+massive_munit_TestResultType.ERROR.__enum__ = massive_munit_TestResultType;
+massive_munit_TestResultType.IGNORE = ["IGNORE",4];
+massive_munit_TestResultType.IGNORE.toString = $estr;
+massive_munit_TestResultType.IGNORE.__enum__ = massive_munit_TestResultType;
+var massive_munit_client_HTTPClient = function(client,url,queueRequest) {
 	if(queueRequest == null) queueRequest = true;
 	if(url == null) url = "http://localhost:2000";
 	this.id = "HTTPClient";
@@ -383,134 +491,131 @@ massive.munit.client.HTTPClient = function(client,url,queueRequest) {
 	this.url = url;
 	this.queueRequest = queueRequest;
 };
-massive.munit.client.HTTPClient.__name__ = true;
-massive.munit.client.HTTPClient.__interfaces__ = [massive.munit.IAdvancedTestResultClient];
-massive.munit.client.HTTPClient.dispatchNextRequest = function() {
-	if(massive.munit.client.HTTPClient.responsePending || massive.munit.client.HTTPClient.queue.length == 0) return;
-	massive.munit.client.HTTPClient.responsePending = true;
-	var request = massive.munit.client.HTTPClient.queue.pop();
+massive_munit_client_HTTPClient.__name__ = true;
+massive_munit_client_HTTPClient.__interfaces__ = [massive_munit_IAdvancedTestResultClient];
+massive_munit_client_HTTPClient.dispatchNextRequest = function() {
+	if(massive_munit_client_HTTPClient.responsePending || massive_munit_client_HTTPClient.queue.length == 0) return;
+	massive_munit_client_HTTPClient.responsePending = true;
+	var request = massive_munit_client_HTTPClient.queue.pop();
 	request.send();
-}
-massive.munit.client.HTTPClient.prototype = {
-	onError: function(msg) {
-		if(this.queueRequest) {
-			massive.munit.client.HTTPClient.responsePending = false;
-			massive.munit.client.HTTPClient.dispatchNextRequest();
-		}
-		if(this.get_completionHandler() != null) (this.get_completionHandler())(this);
+};
+massive_munit_client_HTTPClient.prototype = {
+	get_completionHandler: function() {
+		return this.completionHandler;
 	}
-	,onData: function(data) {
-		if(this.queueRequest) {
-			massive.munit.client.HTTPClient.responsePending = false;
-			massive.munit.client.HTTPClient.dispatchNextRequest();
-		}
-		if(this.get_completionHandler() != null) (this.get_completionHandler())(this);
+	,set_completionHandler: function(value) {
+		return this.completionHandler = value;
 	}
-	,platform: function() {
-		return "js";
-		return "unknown";
+	,setCurrentTestClass: function(className) {
+		if(js_Boot.__instanceof(this.client,massive_munit_IAdvancedTestResultClient)) (js_Boot.__cast(this.client , massive_munit_IAdvancedTestResultClient)).setCurrentTestClass(className);
 	}
-	,sendResult: function(result) {
-		this.request = new massive.munit.client.URLRequest(this.url);
-		this.request.setHeader("munit-clientId",this.client.id);
-		this.request.setHeader("munit-platformId",this.platform());
-		this.request.onData = $bind(this,this.onData);
-		this.request.onError = $bind(this,this.onError);
-		this.request.data = result;
-		if(this.queueRequest) {
-			massive.munit.client.HTTPClient.queue.unshift(this.request);
-			massive.munit.client.HTTPClient.dispatchNextRequest();
-		} else this.request.send();
+	,addPass: function(result) {
+		this.client.addPass(result);
+	}
+	,addFail: function(result) {
+		this.client.addFail(result);
+	}
+	,addError: function(result) {
+		this.client.addError(result);
+	}
+	,addIgnore: function(result) {
+		this.client.addIgnore(result);
 	}
 	,reportFinalStatistics: function(testCount,passCount,failCount,errorCount,ignoreCount,time) {
 		var result = this.client.reportFinalStatistics(testCount,passCount,failCount,errorCount,ignoreCount,time);
 		this.sendResult(result);
 		return result;
 	}
-	,addIgnore: function(result) {
-		this.client.addIgnore(result);
+	,sendResult: function(result) {
+		this.request = new massive_munit_client_URLRequest(this.url);
+		this.request.setHeader("munit-clientId",this.client.id);
+		this.request.setHeader("munit-platformId",this.platform());
+		this.request.onData = $bind(this,this.onData);
+		this.request.onError = $bind(this,this.onError);
+		this.request.data = result;
+		if(this.queueRequest) {
+			massive_munit_client_HTTPClient.queue.unshift(this.request);
+			massive_munit_client_HTTPClient.dispatchNextRequest();
+		} else this.request.send();
 	}
-	,addError: function(result) {
-		this.client.addError(result);
+	,platform: function() {
+		return "js";
+		return "unknown";
 	}
-	,addFail: function(result) {
-		this.client.addFail(result);
+	,onData: function(data) {
+		if(this.queueRequest) {
+			massive_munit_client_HTTPClient.responsePending = false;
+			massive_munit_client_HTTPClient.dispatchNextRequest();
+		}
+		if(this.get_completionHandler() != null) (this.get_completionHandler())(this);
 	}
-	,addPass: function(result) {
-		this.client.addPass(result);
+	,onError: function(msg) {
+		if(this.queueRequest) {
+			massive_munit_client_HTTPClient.responsePending = false;
+			massive_munit_client_HTTPClient.dispatchNextRequest();
+		}
+		if(this.get_completionHandler() != null) (this.get_completionHandler())(this);
 	}
-	,setCurrentTestClass: function(className) {
-		if(js.Boot.__instanceof(this.client,massive.munit.IAdvancedTestResultClient)) (js.Boot.__cast(this.client , massive.munit.IAdvancedTestResultClient)).setCurrentTestClass(className);
-	}
-	,set_completionHandler: function(value) {
-		return this.completionHandler = value;
-	}
-	,get_completionHandler: function() {
-		return this.completionHandler;
-	}
-	,__class__: massive.munit.client.HTTPClient
-}
-massive.munit.client.URLRequest = function(url) {
+	,__class__: massive_munit_client_HTTPClient
+};
+var massive_munit_client_URLRequest = function(url) {
 	this.url = url;
 	this.createClient(url);
 	this.setHeader("Content-Type","text/plain");
 };
-massive.munit.client.URLRequest.__name__ = true;
-massive.munit.client.URLRequest.prototype = {
-	send: function() {
+massive_munit_client_URLRequest.__name__ = true;
+massive_munit_client_URLRequest.prototype = {
+	createClient: function(url) {
+		this.client = new haxe_Http(url);
+	}
+	,setHeader: function(name,value) {
+		this.client.setHeader(name,value);
+	}
+	,send: function() {
 		this.client.onData = this.onData;
 		this.client.onError = this.onError;
 		this.client.setPostData(this.data);
 		this.client.request(true);
 	}
-	,setHeader: function(name,value) {
-		this.client.setHeader(name,value);
-	}
-	,createClient: function(url) {
-		this.client = new haxe.Http(url);
-	}
-	,__class__: massive.munit.client.URLRequest
-}
-massive.munit.util = {}
-massive.munit.util.Timer = function(time_ms) {
-	this.id = massive.munit.util.Timer.arr.length;
-	massive.munit.util.Timer.arr[this.id] = this;
+	,__class__: massive_munit_client_URLRequest
+};
+var massive_munit_util_Timer = $hx_exports.massive.munit.util.Timer = function(time_ms) {
+	this.id = massive_munit_util_Timer.arr.length;
+	massive_munit_util_Timer.arr[this.id] = this;
 	this.timerId = window.setInterval("massive.munit.util.Timer.arr[" + this.id + "].run();",time_ms);
 };
-$hxExpose(massive.munit.util.Timer, "massive.munit.util.Timer");
-massive.munit.util.Timer.__name__ = true;
-massive.munit.util.Timer.delay = function(f,time_ms) {
-	var t = new massive.munit.util.Timer(time_ms);
+massive_munit_util_Timer.__name__ = true;
+massive_munit_util_Timer.delay = function(f,time_ms) {
+	var t = new massive_munit_util_Timer(time_ms);
 	t.run = function() {
 		t.stop();
 		f();
 	};
 	return t;
-}
-massive.munit.util.Timer.stamp = function() {
+};
+massive_munit_util_Timer.stamp = function() {
 	return new Date().getTime() / 1000;
-}
-massive.munit.util.Timer.prototype = {
-	run: function() {
-	}
-	,stop: function() {
+};
+massive_munit_util_Timer.prototype = {
+	stop: function() {
 		if(this.id == null) return;
 		window.clearInterval(this.timerId);
-		massive.munit.util.Timer.arr[this.id] = null;
-		if(this.id > 100 && this.id == massive.munit.util.Timer.arr.length - 1) {
+		massive_munit_util_Timer.arr[this.id] = null;
+		if(this.id > 100 && this.id == massive_munit_util_Timer.arr.length - 1) {
 			var p = this.id - 1;
-			while(p >= 0 && massive.munit.util.Timer.arr[p] == null) p--;
-			massive.munit.util.Timer.arr = massive.munit.util.Timer.arr.slice(0,p + 1);
+			while(p >= 0 && massive_munit_util_Timer.arr[p] == null) p--;
+			massive_munit_util_Timer.arr = massive_munit_util_Timer.arr.slice(0,p + 1);
 		}
 		this.id = null;
 	}
-	,__class__: massive.munit.util.Timer
-}
+	,run: function() {
+	}
+	,__class__: massive_munit_util_Timer
+};
 var $_, $fid = 0;
-function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $fid++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; o.hx__closures__[m.__id__] = f; } return f; };
+function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $fid++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; o.hx__closures__[m.__id__] = f; } return f; }
 String.prototype.__class__ = String;
 String.__name__ = true;
-Array.prototype.__class__ = Array;
 Array.__name__ = true;
 Date.prototype.__class__ = Date;
 Date.__name__ = ["Date"];
@@ -522,19 +627,11 @@ var Bool = Boolean;
 Bool.__ename__ = ["Bool"];
 var Class = { __name__ : ["Class"]};
 var Enum = { };
+var __map_reserved = {}
 BrowserTestsCompleteReporter.CLIENT_RUNNER_HOST = "munit-tool-host";
-massive.munit.client.HTTPClient.queue = [];
-massive.munit.client.HTTPClient.responsePending = false;
-massive.munit.util.Timer.arr = new Array();
+js_Boot.__toStr = {}.toString;
+massive_munit_client_HTTPClient.queue = [];
+massive_munit_client_HTTPClient.responsePending = false;
+massive_munit_util_Timer.arr = [];
 BrowserTestsCompleteReporter.main();
-function $hxExpose(src, path) {
-	var o = typeof window != "undefined" ? window : exports;
-	var parts = path.split(".");
-	for(var ii = 0; ii < parts.length-1; ++ii) {
-		var p = parts[ii];
-		if(typeof o[p] == "undefined") o[p] = {};
-		o = o[p];
-	}
-	o[parts[parts.length-1]] = src;
-}
-})();
+})(typeof console != "undefined" ? console : {log:function(){}}, typeof window != "undefined" ? window : exports);

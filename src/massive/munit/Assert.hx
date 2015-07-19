@@ -28,6 +28,7 @@
 
 package massive.munit;
 
+import haxe.Int64;
 import haxe.PosInfos;
 
 /**
@@ -169,7 +170,7 @@ class Assert
 			#else
 			case TEnum(e): Type.enumEq(expected, actual);
 			#end
-			
+            case TClass(_): Std.string(expected) == Std.string(actual);
 			default: expected == actual;
 		}
 		if (!equal) failPrefix(msg, AssertHelper.stringDiff(Std.string(expected), Std.string(actual)).toString(), info);
@@ -196,6 +197,7 @@ class Assert
 			#else
 			case TEnum(e): Type.enumEq(expected, actual);
 			#end
+            case TClass(_): Std.string(expected) == Std.string(actual);
 			default: expected == actual;
 		}
 

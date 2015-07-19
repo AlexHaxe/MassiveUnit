@@ -32,7 +32,7 @@
 -cp src
 -lib mlib
 -neko bin/test/core/neko_test.n
---next
+# --next
 
 # # CPP
 # -main TestMain
