@@ -71,7 +71,7 @@ class UnhandledException extends MUnitException
 		#end
 		if (s == "")
 		{
-			var stack:Array<haxe.StackItem> = CallStack.exceptionStack();
+			var stack:Array<haxe.CallStack.StackItem> = CallStack.exceptionStack();
 			while (stack.length > 0)
 			{
 				switch (stack.shift()) 
